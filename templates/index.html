@@ -8,8 +8,8 @@
         </style>
     </head>
     <body>
-        <form>
-            <input type="text" name="description" />
+        <form id="form">
+            <input type="text" id="description" name="description" />
             <input type="submit" value="create" />
         </form>
         <div id="error" class="hidden">Something went wrong!</div>
@@ -33,10 +33,10 @@
                 .then(function(response) {
                     return response.json();
                 })
-                .then(function(jsonresponse) {
-                    console.log(jsonresponse);
+                .then(function(jsonResponse) {
+                    console.log(jsonResponse);
                     const liItem = document.createElement('LI');
-                    liItem.innerHTML = jsonresponse['description'];
+                    liItem.innerHTML = jsonResponse['description'];
                     document.getElementById('todos').appendChild(liItem);
                     document.getElementById('error').className = 'hidden';
                 })
