@@ -115,6 +115,18 @@
                     li.appendChild(deleteBtn);
 
                     document.getElementById('todos').appendChild(li);
+                    
+                    const deleteBtns = document.getElementById('todos');
+                    deleteBtns.addEventListener('click', function (e) {
+                        if (e.target && e.target.nodeName == "BUTTON") {
+                            const todoId = e.target.dataset['id'];
+                            fetch('/todos/' + todoId + '/delete-item', {
+                                method: 'DELETE',
+                            }).then(function (response) {
+                                e.target.parentNode.remove();
+                            })
+                        }
+                    });
                     document.getElementById('error').className = 'hidden';
                 })
                 .catch(function(){
