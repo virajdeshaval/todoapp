@@ -3,13 +3,12 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 import sys
 
-from werkzeug.exceptions import default_exceptions
-
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:Daffy_2021@localhost:5432/todoapp'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
-
 migrate = Migrate(app, db)
+
 
 class Todo(db.Model):
     __tablename__ = 'todos'
@@ -20,7 +19,19 @@ class Todo(db.Model):
     def __repr__(self):
         return f'<Todo {self.id} {self.description}>'
 
-# db.create_all()
+
+@app.route('/todos/<todo_id>/delete-item', methods=['DELETE'])
+def delete_to_item(todo_id):
+    try:
+        todo = Todo.query.get(todo_id)
+        db.session.delete(todo)
+        db.session.commit()
+    except:
+        db.session.rollback()
+    finally:
+        db.session.close() 
+    return jsonify({ 'success': True })
+
 
 @app.route('/todos/create', methods=['POST'])
 def create_todo():
@@ -31,7 +42,9 @@ def create_todo():
         todo = Todo(description=description)
         db.session.add(todo)
         db.session.commit()
+        body['id'] = todo.id
         body['description'] = todo.description
+        body['completed'] = todo.completed
     except:
         error = True
         db.session.rollback()
@@ -61,17 +74,6 @@ def set_completed_todo(todo_id):
 
     return redirect(url_for('index'))
 
-@app.route('/todos/<todo_id>/delete-item', methods=['DELETE'])
-def delete_to_item(todo_id):
-    try:
-        todo = Todo.query.get(todo_id)
-        db.session.delete(todo)
-        db.session.commit()
-    except:
-        db.session.rollback()
-    finally:
-        db.session.close() 
-    return jsonify({ 'success': True })
 
 @app.route('/')
 def index():
